@@ -1,6 +1,3 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-    }
-}
+mod checksum;
+
+pub use self::checksum::luhn;

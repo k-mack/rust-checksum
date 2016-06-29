@@ -1,5 +1,5 @@
 [package]
-name = "rust-checksum"
+name = "checksum"
 version = "0.1.0"
 authors = ["Kevin Macksamie <kevin.macksamie@gmail.com>"]
 
