@@ -1,3 +1,33 @@
+/// Performs the summation of digits in a number as specified by the Luhn algorithm.
+fn luhn_digit_sum(num: u64) -> u32 {
+    let mut num_pre_div = num;
+    let mut num_post_div;
+    let mut sum = 0u32;
+    let mut i = 0u8;
+    // Scan digits from right to left
+    loop {
+        num_post_div = num_pre_div / 10;
+        i += 1;
+        let digit = num_pre_div - num_post_div * 10;
+        if i % 2 == 0 {
+            // Even indexed digits are doubled and adjusted if greater than 9
+            let mut second_digit = digit * 2;
+            if second_digit > 9 {
+                second_digit = second_digit - 9;
+            }
+            sum += second_digit as u32;
+        } else {
+            // Odd indexed digits are treated as-is
+            sum += digit as u32;
+        }
+        if num_post_div == 0 {
+            break;
+        }
+        num_pre_div = num_post_div;
+    }
+    sum
+}
+
 /// Computes the Luhn checksum for the provided number.
 ///
 /// # Examples
@@ -12,31 +42,8 @@
 ///     println!("Account number has been corrupted!");
 /// }
 /// ```
-pub fn luhn_checksum(full_number: u64) -> u8 {
-    let mut num_pre_div = full_number;
-    let mut num_post_div;
-    let mut sum = 0u32;
-    let mut i = 0u8;
-    // Scan digits from right to left
-    loop {
-        num_post_div = num_pre_div / 10;
-        i += 1;
-        let digit = num_pre_div - num_post_div * 10;
-        if i % 2 == 0 {
-            let mut second_digit = digit * 2;
-            if second_digit > 9 {
-                second_digit = second_digit - 9;
-            }
-            sum = sum + second_digit as u32;
-        } else {
-            sum = sum + digit as u32;
-        }
-        if num_post_div == 0 {
-            break;
-        }
-        num_pre_div = num_post_div;
-    }
-    (sum % 10) as u8
+pub fn luhn_checksum(num: u64) -> u8 {
+    (luhn_digit_sum(num) % 10) as u8
 }
 
 /// Computes the Luhn check digit for the provided number.
@@ -51,30 +58,7 @@ pub fn luhn_checksum(full_number: u64) -> u8 {
 /// assert_eq!(checksum, 3);
 /// ```
 pub fn luhn_calculate_check_digit(num: u64) -> u8 {
-    let mut num_pre_div = num;
-    let mut num_post_div;
-    let mut sum = 0u32;
-    let mut i = 0u8;
-    // Scan digits from right to left
-    loop {
-        num_post_div = num_pre_div / 10;
-        i += 1;
-        let digit = num_pre_div - num_post_div * 10;
-        if i % 2 == 1 {
-            let mut second_digit = digit * 2;
-            if second_digit > 9 {
-                second_digit = second_digit - 9;
-            }
-            sum = sum + second_digit as u32;
-        } else {
-            sum = sum + digit as u32;
-        }
-        if num_post_div == 0 {
-            break;
-        }
-        num_pre_div = num_post_div;
-    }
-    (sum * 9 % 10) as u8
+    (luhn_digit_sum(num * 10) * 9 % 10) as u8
 }
 
 /// Verifies the check digit using the Luhn algorithm.
@@ -93,8 +77,8 @@ pub fn luhn_calculate_check_digit(num: u64) -> u8 {
 ///     println!("Account number is NOT valid!");
 /// }
 /// ```
-pub fn luhn_is_valid(full_number: u64) -> bool {
-    luhn_checksum(full_number) == 0
+pub fn luhn_is_valid(num: u64) -> bool {
+    luhn_checksum(num) == 0
 }
 
 const DIHEDRAL_D5: [[u8; 10]; 10] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
