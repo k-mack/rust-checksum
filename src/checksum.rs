@@ -101,11 +101,9 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
     /// let algo = checksum::LuhnAlgorithm {};
     /// let is_valid = algo.is_valid(acct_num);
     /// assert_eq!(is_valid, true);
-    /// if is_valid {
-    ///     println!("Account number is valid!");
-    /// } else {
-    ///     println!("Account number is NOT valid!");
-    /// }
+    ///
+    /// let pan = 5555555555554444;
+    /// assert_eq!(algo.is_valid(pan), true);
     /// ```
     fn is_valid(&self, num: u64) -> bool {
         self.checksum(num) == 0
@@ -203,6 +201,9 @@ impl CheckDigitAlgorithm for VerhoeffAlgorithm {
     /// let algo = checksum::VerhoeffAlgorithm {};
     /// let is_valid = algo.is_valid(num);
     /// assert_eq!(is_valid, true);
+    ///
+    /// let pan = 5555555555554444;
+    /// assert_eq!(algo.is_valid(pan), false);
     /// ```
     fn is_valid(&self, num: u64) -> bool {
         self.checksum(num) == 0
