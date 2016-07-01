@@ -1,84 +1,110 @@
-/// Performs the summation of digits in a number as specified by the Luhn algorithm.
-fn luhn_digit_sum(num: u64) -> u32 {
-    let mut num_pre_div = num;
-    let mut num_post_div;
-    let mut sum = 0u32;
-    let mut i = 0u8;
-    // Scan digits from right to left
-    loop {
-        num_post_div = num_pre_div / 10;
-        i += 1;
-        let digit = num_pre_div - num_post_div * 10;
-        if i % 2 == 0 {
-            // Even indexed digits are doubled and adjusted if greater than 9
-            let mut second_digit = digit * 2;
-            if second_digit > 9 {
-                second_digit = second_digit - 9;
+/// The `CheckDigitAlgorithm` trait is used to specify the functionality of a checksum function
+/// that uses a check digit for error detection.
+pub trait CheckDigitAlgorithm {
+    /// Computes the checksum for the provided number.
+    fn checksum(&self, num: u64) -> u8;
+
+    /// Computes the check digit for the provided number.
+    fn calculate_check_digit(&self, num: u64) -> u8;
+
+    /// Tests if the provided number, which must be suffixed with a check digit, is erroneous.
+    fn is_valid(&self, num: u64) -> bool;
+}
+
+/// Luhn check digit algorithm.
+pub struct LuhnAlgorithm {}
+
+impl LuhnAlgorithm {
+    /// Performs the summation of digits in a number as specified by the Luhn algorithm.
+    fn digit_sum(num: u64) -> u32 {
+        let mut num_pre_div = num;
+        let mut num_post_div;
+        let mut sum = 0u32;
+        let mut i = 0u8;
+        // Scan digits from right to left
+        loop {
+            num_post_div = num_pre_div / 10;
+            i += 1;
+            let digit = num_pre_div - num_post_div * 10;
+            if i % 2 == 0 {
+                // Even indexed digits are doubled and adjusted if greater than 9
+                let mut second_digit = digit * 2;
+                if second_digit > 9 {
+                    second_digit = second_digit - 9;
+                }
+                sum += second_digit as u32;
+            } else {
+                // Odd indexed digits are treated as-is
+                sum += digit as u32;
             }
-            sum += second_digit as u32;
-        } else {
-            // Odd indexed digits are treated as-is
-            sum += digit as u32;
+            if num_post_div == 0 {
+                break;
+            }
+            num_pre_div = num_post_div;
         }
-        if num_post_div == 0 {
-            break;
-        }
-        num_pre_div = num_post_div;
+        sum
     }
-    sum
 }
 
-/// Computes the Luhn checksum for the provided number.
-///
-/// # Examples
-///
-/// Provide the function with an identification number.
-///
-/// ```
-/// let acct_num = 79927398713;
-/// let checksum = checksum::luhn_checksum(acct_num);
-/// assert_eq!(checksum, 0);
-/// if checksum != 0 {
-///     println!("Account number has been corrupted!");
-/// }
-/// ```
-pub fn luhn_checksum(num: u64) -> u8 {
-    (luhn_digit_sum(num) % 10) as u8
-}
+impl CheckDigitAlgorithm for LuhnAlgorithm {
+    /// Computes the Luhn checksum for the provided number.
+    ///
+    /// # Examples
+    ///
+    /// Provide the function with an identification number.
+    ///
+    /// ```
+    /// use checksum::CheckDigitAlgorithm;
+    /// let acct_num = 79927398713;
+    /// let algo = checksum::LuhnAlgorithm {};
+    /// let checksum = algo.checksum(acct_num);
+    /// assert_eq!(checksum, 0);
+    /// if checksum != 0 {
+    ///     println!("Account number has been corrupted!");
+    /// }
+    /// ```
+    fn checksum(&self, num: u64) -> u8 {
+        (LuhnAlgorithm::digit_sum(num) % 10) as u8
+    }
 
-/// Computes the Luhn check digit for the provided number.
-///
-/// # Examples
-///
-/// Provide the function with an identification number.
-///
-/// ```
-/// let acct_num = 7992739871;
-/// let checksum = checksum::luhn_calculate_check_digit(acct_num);
-/// assert_eq!(checksum, 3);
-/// ```
-pub fn luhn_calculate_check_digit(num: u64) -> u8 {
-    (luhn_digit_sum(num * 10) * 9 % 10) as u8
-}
+    /// Computes the Luhn check digit for the provided number.
+    ///
+    /// # Examples
+    ///
+    /// Provide the function with an identification number.
+    ///
+    /// ```
+    /// use checksum::CheckDigitAlgorithm;
+    /// let acct_num = 7992739871;
+    /// let algo = checksum::LuhnAlgorithm {};
+    /// let checksum = algo.calculate_check_digit(acct_num);
+    /// assert_eq!(checksum, 3);
+    /// ```
+    fn calculate_check_digit(&self, num: u64) -> u8 {
+        (LuhnAlgorithm::digit_sum(num * 10) * 9 % 10) as u8
+    }
 
-/// Verifies the check digit using the Luhn algorithm.
-///
-/// # Examples
-///
-/// Provide the function with an identification number.
-///
-/// ```
-/// let acct_num = 79927398713;
-/// let is_valid = checksum::luhn_is_valid(acct_num);
-/// assert_eq!(is_valid, true);
-/// if is_valid {
-///     println!("Account number is valid!");
-/// } else {
-///     println!("Account number is NOT valid!");
-/// }
-/// ```
-pub fn luhn_is_valid(num: u64) -> bool {
-    luhn_checksum(num) == 0
+    /// Verifies the check digit using the Luhn algorithm.
+    ///
+    /// # Examples
+    ///
+    /// Provide the function with an identification number.
+    ///
+    /// ```
+    /// use checksum::CheckDigitAlgorithm;
+    /// let acct_num = 79927398713;
+    /// let algo = checksum::LuhnAlgorithm {};
+    /// let is_valid = algo.is_valid(acct_num);
+    /// assert_eq!(is_valid, true);
+    /// if is_valid {
+    ///     println!("Account number is valid!");
+    /// } else {
+    ///     println!("Account number is NOT valid!");
+    /// }
+    /// ```
+    fn is_valid(&self, num: u64) -> bool {
+        self.checksum(num) == 0
+    }
 }
 
 const DIHEDRAL_D5: [[u8; 10]; 10] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
