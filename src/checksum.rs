@@ -20,6 +20,11 @@ pub trait CheckDigitScheme {
 pub struct LuhnScheme {}
 
 impl LuhnScheme {
+    /// Creates a new Luhn scheme.
+    pub fn new() -> LuhnScheme {
+        LuhnScheme {}
+    }
+
     /// Performs the summation of digits in a number as specified by the Luhn algorithm.
     fn digit_sum(num: u64) -> u32 {
         let mut num_pre_div = num;
@@ -61,12 +66,9 @@ impl CheckDigitScheme for LuhnScheme {
     /// ```
     /// use checksum::CheckDigitScheme;
     /// let acct_num = 79927398713;
-    /// let algo = checksum::LuhnScheme {};
+    /// let algo = checksum::LuhnScheme::new();
     /// let checksum = algo.checksum(acct_num);
     /// assert_eq!(checksum, 0);
-    /// if checksum != 0 {
-    ///     println!("Account number has been corrupted!");
-    /// }
     /// ```
     fn checksum(&self, num: u64) -> u8 {
         (LuhnScheme::digit_sum(num) % 10) as u8
@@ -81,7 +83,7 @@ impl CheckDigitScheme for LuhnScheme {
     /// ```
     /// use checksum::CheckDigitScheme;
     /// let acct_num = 7992739871;
-    /// let algo = checksum::LuhnScheme {};
+    /// let algo = checksum::LuhnScheme::new();
     /// let checksum = algo.calculate_check_digit(acct_num);
     /// assert_eq!(checksum, 3);
     /// ```
@@ -98,7 +100,7 @@ impl CheckDigitScheme for LuhnScheme {
     /// ```
     /// use checksum::CheckDigitScheme;
     /// let acct_num = 79927398713;
-    /// let algo = checksum::LuhnScheme {};
+    /// let algo = checksum::LuhnScheme::new();
     /// let is_valid = algo.is_valid(acct_num);
     /// assert_eq!(is_valid, true);
     ///
@@ -139,6 +141,13 @@ const VERHOEFF_P_TABLE: [[u8; 10]; 8] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                                          [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
                                          [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]];
 
+impl VerhoeffScheme {
+    /// Creates a new Verhoeff scheme.
+    pub fn new() -> VerhoeffScheme {
+        VerhoeffScheme {}
+    }
+}
+
 impl CheckDigitScheme for VerhoeffScheme {
     /// Computes the Verhoeff checksum for the provided number.
     ///
@@ -149,7 +158,7 @@ impl CheckDigitScheme for VerhoeffScheme {
     /// ```
     /// use checksum::CheckDigitScheme;
     /// let num = 2363;
-    /// let algo = checksum::VerhoeffScheme {};
+    /// let algo = checksum::VerhoeffScheme::new();
     /// let check_digit = algo.checksum(num);
     /// assert_eq!(check_digit, 0);
     /// ```
@@ -180,7 +189,7 @@ impl CheckDigitScheme for VerhoeffScheme {
     /// ```
     /// use checksum::CheckDigitScheme;
     /// let num = 236;
-    /// let algo = checksum::VerhoeffScheme {};
+    /// let algo = checksum::VerhoeffScheme::new();
     /// let check_digit = algo.calculate_check_digit(num);
     /// assert_eq!(check_digit, 3);
     /// ```
@@ -198,7 +207,7 @@ impl CheckDigitScheme for VerhoeffScheme {
     /// ```
     /// use checksum::CheckDigitScheme;
     /// let num = 2363;
-    /// let algo = checksum::VerhoeffScheme {};
+    /// let algo = checksum::VerhoeffScheme::new();
     /// let is_valid = algo.is_valid(num);
     /// assert_eq!(is_valid, true);
     ///
