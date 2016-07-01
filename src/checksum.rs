@@ -113,6 +113,10 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
 }
 
 /// Verhoeff check digit algorithm.
+///
+/// The strengths of the Verhoeff algorithm are thath it detects al transliteration and
+/// transposition errors, and additionally most twin, twin jump, jump transposition and phonetic
+/// errors.
 pub struct VerhoeffAlgorithm {}
 
 const VERHOEFF_D_TABLE: [[u8; 10]; 10] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
