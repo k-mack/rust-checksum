@@ -1,6 +1,6 @@
-/// The `CheckDigitAlgorithm` trait is used to specify the functionality of a checksum function
+/// The `CheckDigitScheme` trait is used to specify the functionality of a checksum function
 /// that uses a check digit for error detection.
-pub trait CheckDigitAlgorithm {
+pub trait CheckDigitScheme {
     /// Computes the checksum for the provided number.
     fn checksum(&self, num: u64) -> u8;
 
@@ -17,9 +17,9 @@ pub trait CheckDigitAlgorithm {
 /// of adjacent digits. It will **not**, however, detect transposition of the two-digit sequence
 /// *09* to *90* (or vice versa). It will detect 7 of the 10 possible twin errors (it will not
 /// detect *22* <-> *55*, *33* <-> *66*, or *44* <-> *77*).
-pub struct LuhnAlgorithm {}
+pub struct LuhnScheme {}
 
-impl LuhnAlgorithm {
+impl LuhnScheme {
     /// Performs the summation of digits in a number as specified by the Luhn algorithm.
     fn digit_sum(num: u64) -> u32 {
         let mut num_pre_div = num;
@@ -51,7 +51,7 @@ impl LuhnAlgorithm {
     }
 }
 
-impl CheckDigitAlgorithm for LuhnAlgorithm {
+impl CheckDigitScheme for LuhnScheme {
     /// Computes the Luhn checksum for the provided number.
     ///
     /// # Examples
@@ -59,9 +59,9 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
     /// Provide the function with an identification number.
     ///
     /// ```
-    /// use checksum::CheckDigitAlgorithm;
+    /// use checksum::CheckDigitScheme;
     /// let acct_num = 79927398713;
-    /// let algo = checksum::LuhnAlgorithm {};
+    /// let algo = checksum::LuhnScheme {};
     /// let checksum = algo.checksum(acct_num);
     /// assert_eq!(checksum, 0);
     /// if checksum != 0 {
@@ -69,7 +69,7 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
     /// }
     /// ```
     fn checksum(&self, num: u64) -> u8 {
-        (LuhnAlgorithm::digit_sum(num) % 10) as u8
+        (LuhnScheme::digit_sum(num) % 10) as u8
     }
 
     /// Computes the Luhn check digit for the provided number.
@@ -79,14 +79,14 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
     /// Provide the function with an identification number.
     ///
     /// ```
-    /// use checksum::CheckDigitAlgorithm;
+    /// use checksum::CheckDigitScheme;
     /// let acct_num = 7992739871;
-    /// let algo = checksum::LuhnAlgorithm {};
+    /// let algo = checksum::LuhnScheme {};
     /// let checksum = algo.calculate_check_digit(acct_num);
     /// assert_eq!(checksum, 3);
     /// ```
     fn calculate_check_digit(&self, num: u64) -> u8 {
-        (LuhnAlgorithm::digit_sum(num * 10) * 9 % 10) as u8
+        (LuhnScheme::digit_sum(num * 10) * 9 % 10) as u8
     }
 
     /// Verifies the check digit using the Luhn algorithm.
@@ -96,9 +96,9 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
     /// Provide the function with an identification number.
     ///
     /// ```
-    /// use checksum::CheckDigitAlgorithm;
+    /// use checksum::CheckDigitScheme;
     /// let acct_num = 79927398713;
-    /// let algo = checksum::LuhnAlgorithm {};
+    /// let algo = checksum::LuhnScheme {};
     /// let is_valid = algo.is_valid(acct_num);
     /// assert_eq!(is_valid, true);
     ///
@@ -115,7 +115,7 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
 /// The strengths of the Verhoeff algorithm are thath it detects al transliteration and
 /// transposition errors, and additionally most twin, twin jump, jump transposition and phonetic
 /// errors.
-pub struct VerhoeffAlgorithm {}
+pub struct VerhoeffScheme {}
 
 const VERHOEFF_D_TABLE: [[u8; 10]; 10] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                                           [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
@@ -139,7 +139,7 @@ const VERHOEFF_P_TABLE: [[u8; 10]; 8] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                                          [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
                                          [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]];
 
-impl CheckDigitAlgorithm for VerhoeffAlgorithm {
+impl CheckDigitScheme for VerhoeffScheme {
     /// Computes the Verhoeff checksum for the provided number.
     ///
     /// # Examples
@@ -147,9 +147,9 @@ impl CheckDigitAlgorithm for VerhoeffAlgorithm {
     /// Generate a checksum for 236:
     ///
     /// ```
-    /// use checksum::CheckDigitAlgorithm;
+    /// use checksum::CheckDigitScheme;
     /// let num = 2363;
-    /// let algo = checksum::VerhoeffAlgorithm {};
+    /// let algo = checksum::VerhoeffScheme {};
     /// let check_digit = algo.checksum(num);
     /// assert_eq!(check_digit, 0);
     /// ```
@@ -178,9 +178,9 @@ impl CheckDigitAlgorithm for VerhoeffAlgorithm {
     /// Generate a check digit for 236:
     ///
     /// ```
-    /// use checksum::CheckDigitAlgorithm;
+    /// use checksum::CheckDigitScheme;
     /// let num = 236;
-    /// let algo = checksum::VerhoeffAlgorithm {};
+    /// let algo = checksum::VerhoeffScheme {};
     /// let check_digit = algo.calculate_check_digit(num);
     /// assert_eq!(check_digit, 3);
     /// ```
@@ -196,9 +196,9 @@ impl CheckDigitAlgorithm for VerhoeffAlgorithm {
     /// Validate the check digit 2363.
     ///
     /// ```
-    /// use checksum::CheckDigitAlgorithm;
+    /// use checksum::CheckDigitScheme;
     /// let num = 2363;
-    /// let algo = checksum::VerhoeffAlgorithm {};
+    /// let algo = checksum::VerhoeffScheme {};
     /// let is_valid = algo.is_valid(num);
     /// assert_eq!(is_valid, true);
     ///

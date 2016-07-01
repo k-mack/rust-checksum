@@ -1,5 +1,5 @@
 mod checksum;
 
-pub use self::checksum::CheckDigitAlgorithm;
-pub use self::checksum::LuhnAlgorithm;
-pub use self::checksum::VerhoeffAlgorithm;
+pub use self::checksum::CheckDigitScheme;
+pub use self::checksum::LuhnScheme;
+pub use self::checksum::VerhoeffScheme;
