@@ -112,18 +112,21 @@ impl CheckDigitAlgorithm for LuhnAlgorithm {
     }
 }
 
-const DIHEDRAL_D5: [[u8; 10]; 10] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                                     [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
-                                     [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
-                                     [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
-                                     [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
-                                     [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
-                                     [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
-                                     [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
-                                     [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
-                                     [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]];
+/// Verhoeff check digit algorithm.
+pub struct VerhoeffAlgorithm {}
 
-const INV_DIHEDRAL_D5: [u8; 10] = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9];
+const VERHOEFF_D_TABLE: [[u8; 10]; 10] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                                          [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+                                          [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+                                          [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+                                          [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
+                                          [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+                                          [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
+                                          [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+                                          [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+                                          [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]];
+
+const VERHOEFF_INV_D_TABLE: [u8; 10] = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9];
 
 const VERHOEFF_P_TABLE: [[u8; 10]; 8] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                                          [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
@@ -134,62 +137,70 @@ const VERHOEFF_P_TABLE: [[u8; 10]; 8] = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                                          [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
                                          [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]];
 
-/// Computes the Verhoeff checksum for the provided number.
-///
-/// # Examples
-///
-/// Generate a checksum for 236:
-///
-/// ```
-/// let num = 2363;
-/// let check_digit = checksum::verhoeff_checksum(num);
-/// assert_eq!(check_digit, 0);
-/// ```
-pub fn verhoeff_checksum(num: u64) -> u8 {
-    let mut num_pre_div = num;
-    let mut num_post_div;
-    let mut i = 0u8;
-    let mut c = 0u8;
-    loop {
-        num_post_div = num_pre_div / 10;
-        let digit = num_pre_div - num_post_div * 10;
-        c = DIHEDRAL_D5[c as usize][VERHOEFF_P_TABLE[(i % 8) as usize][digit as usize] as usize];
-        i += 1;
-        if num_post_div == 0 {
-            break;
+impl CheckDigitAlgorithm for VerhoeffAlgorithm {
+    /// Computes the Verhoeff checksum for the provided number.
+    ///
+    /// # Examples
+    ///
+    /// Generate a checksum for 236:
+    ///
+    /// ```
+    /// use checksum::CheckDigitAlgorithm;
+    /// let num = 2363;
+    /// let algo = checksum::VerhoeffAlgorithm {};
+    /// let check_digit = algo.checksum(num);
+    /// assert_eq!(check_digit, 0);
+    /// ```
+    fn checksum(&self, num: u64) -> u8 {
+        let mut num_pre_div = num;
+        let mut num_post_div;
+        let mut i = 0u8;
+        let mut c = 0u8;
+        loop {
+            num_post_div = num_pre_div / 10;
+            let digit = num_pre_div - num_post_div * 10;
+            c = VERHOEFF_D_TABLE[c as usize][VERHOEFF_P_TABLE[(i % 8) as usize][digit as usize] as usize];
+            i += 1;
+            if num_post_div == 0 {
+                break;
+            }
+            num_pre_div = num_post_div;
         }
-        num_pre_div = num_post_div;
+        c
     }
-    c
-}
 
-/// Computes the Verhoeff check digit for the provided number.
-///
-/// # Examples
-///
-/// Generate a check digit for 236:
-///
-/// ```
-/// let num = 236;
-/// let check_digit = checksum::verhoeff_calculate_check_digit(num);
-/// assert_eq!(check_digit, 3);
-/// ```
-pub fn verhoeff_calculate_check_digit(num: u64) -> u8 {
-    let c = verhoeff_checksum(num * 10);
-    INV_DIHEDRAL_D5[c as usize]
-}
+    /// Computes the Verhoeff check digit for the provided number.
+    ///
+    /// # Examples
+    ///
+    /// Generate a check digit for 236:
+    ///
+    /// ```
+    /// use checksum::CheckDigitAlgorithm;
+    /// let num = 236;
+    /// let algo = checksum::VerhoeffAlgorithm {};
+    /// let check_digit = algo.calculate_check_digit(num);
+    /// assert_eq!(check_digit, 3);
+    /// ```
+    fn calculate_check_digit(&self, num: u64) -> u8 {
+        let c = self.checksum(num * 10);
+        VERHOEFF_INV_D_TABLE[c as usize]
+    }
 
-/// Uses the Verhoeff checksum formula for error detection.
-///
-/// # Examples
-///
-/// Validate the check digit 2363.
-///
-/// ```
-/// let num = 2363;
-/// let is_valid = checksum::verhoeff_is_valid(num);
-/// assert_eq!(is_valid, true);
-/// ```
-pub fn verhoeff_is_valid(num: u64) -> bool {
-    verhoeff_checksum(num) == 0
+    /// Uses the Verhoeff checksum formula for error detection.
+    ///
+    /// # Examples
+    ///
+    /// Validate the check digit 2363.
+    ///
+    /// ```
+    /// use checksum::CheckDigitAlgorithm;
+    /// let num = 2363;
+    /// let algo = checksum::VerhoeffAlgorithm {};
+    /// let is_valid = algo.is_valid(num);
+    /// assert_eq!(is_valid, true);
+    /// ```
+    fn is_valid(&self, num: u64) -> bool {
+        self.checksum(num) == 0
+    }
 }
